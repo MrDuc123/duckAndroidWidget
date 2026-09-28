@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.AINews" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#EDEFF3</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

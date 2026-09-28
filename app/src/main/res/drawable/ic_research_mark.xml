@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The research icon, big and faded behind the text: the "Icon" mascot choice.
+     The 13% opacity is built in (a tint colour's alpha is ignored before Android 12). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:alpha="0.13">
+    <path android:pathData="M9,3h6M10,3v6l-5,9a2,2 0,0 0,1.7 3h10.6a2,2 0,0 0,1.7 -3l-5,-9V3M7.5,15h9"
+        android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+</vector>

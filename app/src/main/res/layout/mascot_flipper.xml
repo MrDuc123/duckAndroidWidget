@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home screen widgets can't run animations, but a ViewFlipper can step through pictures.
+     The widget fills it with frames of the mascot's idle animation (one frame every 250 ms). -->
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mascot_flipper"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:autoStart="true"
+    android:flipInterval="250" />

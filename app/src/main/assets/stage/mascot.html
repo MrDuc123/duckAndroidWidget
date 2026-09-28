@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- Mascot stage for the AI News app. The app fills in SVG_JSON with the files from assets/mascots/
+     and calls setMascot("duck" | "catbox", "happy" | "calm" | "sleepy"). Same animations as the web preview. -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root { --ios: -apple-system, system-ui, Roboto, sans-serif; }
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; -webkit-tap-highlight-color: transparent; user-select: none; }
+#stage { position: absolute; inset: 0; display: grid; place-items: center; }
+#stage .mz { width: min(80vw, 80vh); height: min(80vw, 80vh); }
+/* keep the box cat inside its box when it ducks down (the box bottom is at y=112 of 120) */
+.f-cat-box-peeker svg, .f-cat-box-peeker-happy svg, .f-cat-box-peeker-sleepy svg { clip-path: inset(-20% -20% 6.5% -20%); }
+</style>
+<style>
+/* on this big stage the quack lines have room on the right */
+.mz.m-duck.tap::after { left: auto !important; right: -22%; top: 34%; scale: 1 1 !important; }
+/* ---------- mascot animations (parts are labelled with data-part in the SVG files) ---------- */
+.mz { display: block; position: relative; pointer-events: auto; cursor: pointer; overflow: visible; }
+.mz .ly { display: block; width: 100%; height: 100%; }
+.mz.tr { display: grid; }
+.mz.tr .ly { grid-area: 1 / 1; }
+.mz svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.mz [data-part] { transform-box: fill-box; transform-origin: 50% 50%; }
+.mz [data-part="sparkles"] > *, .mz [data-part="zz"] > * { transform-box: fill-box; transform-origin: 50% 50%; }
+
+/* idle: duck */
+.f-duck-happy [data-part="duck"] { transform-origin: 50% 100%; animation: m-hop 2.4s ease-in-out infinite; }
+.f-duck-happy [data-part="wing-l"] { transform-origin: 90% 90%; animation: m-flap-l 2.4s ease-in-out infinite; }
+.f-duck-happy [data-part="wing-r"] { transform-origin: 10% 90%; animation: m-flap-r 2.4s ease-in-out infinite; }
+.f-duck-calm [data-part="duck"] { transform-origin: 50% 100%; animation: m-sway 3.4s ease-in-out infinite; }
+.f-duck-calm [data-part="eyes"], .f-cat-box-peeker [data-part="eyes"] { animation: m-blink 4.2s infinite; }
+.f-duck-sleepy [data-part="duck"] { transform-origin: 50% 100%; animation: m-nod 4.6s ease-in-out infinite; }
+.f-duck-sleepy [data-part="bubble"] { transform-origin: 30% 30%; animation: m-bubble 2.3s ease-in-out infinite; }
+/* idle: box cat */
+.f-cat-box-peeker [data-part="cat"] { animation: m-peek 8s ease-in-out infinite; }
+.f-cat-box-peeker [data-part="paws"] { animation: m-paws 8s ease-in-out infinite; }
+.f-cat-box-peeker-happy [data-part="cat"] { animation: m-bounce 1.8s ease-in-out infinite; }
+/* idle: curled cat (the box cat asleep) */
+.f-cat-cozy-curl [data-part="body"] { transform-origin: 50% 100%; animation: m-breathe 3.2s ease-in-out infinite; }
+.f-cat-cozy-curl [data-part="tail"] { transform-origin: 5% 95%; animation: m-tail 5s ease-in-out infinite; }
+.f-cat-cozy-curl [data-part="head"] { transform-origin: 50% 100%; animation: m-headbob 3.2s ease-in-out infinite; }
+/* shared twinkles and floating z's */
+.mz [data-part="sparkles"] > * { animation: m-twinkle 1.6s ease-in-out infinite; }
+.mz [data-part="sparkles"] > :nth-child(2) { animation-delay: .55s; }
+.mz [data-part="sparkles"] > :nth-child(3) { animation-delay: 1.1s; }
+.mz [data-part="zz"] > * { animation: m-zz 2.6s ease-in-out infinite; }
+.mz [data-part="zz"] > :nth-child(2) { animation-delay: .5s; }
+.mz [data-part="zz"] > :nth-child(3) { animation-delay: 1s; }
+
+@keyframes m-hop { 0%, 55%, 100% { transform: none; } 62% { transform: scale(1.07, .9); } 72% { transform: translateY(-14%) scale(.95, 1.06); } 82% { transform: scale(1.06, .92); } 90% { transform: none; } }
+@keyframes m-hop-once { 0%, 100% { transform: none; } 20% { transform: scale(1.07, .9); } 45% { transform: translateY(-14%) scale(.95, 1.06); } 70% { transform: scale(1.06, .92); } }
+@keyframes m-flap-l { 0%, 60%, 90%, 100% { transform: none; } 68%, 80% { transform: rotate(28deg); } 74% { transform: rotate(-8deg); } }
+@keyframes m-flap-r { 0%, 60%, 90%, 100% { transform: none; } 68%, 80% { transform: rotate(-28deg); } 74% { transform: rotate(8deg); } }
+@keyframes m-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes m-blink { 0%, 92%, 100% { transform: none; } 95% { transform: scaleY(.1); } }
+@keyframes m-nod { 0% { transform: none; } 45% { transform: rotate(4deg) translateY(2%); } 72% { transform: rotate(7deg) translateY(3%); } 76% { transform: rotate(-2deg); } 84%, 100% { transform: none; } }
+@keyframes m-bubble { 0%, 100% { transform: scale(.75); } 50% { transform: scale(1.3); } }
+@keyframes m-peek { 0%, 70%, 100% { transform: none; } 76%, 84% { transform: translateY(62%); } 92% { transform: translateY(40%); } }
+@keyframes m-paws { 0%, 70%, 97%, 100% { opacity: 1; transform: none; } 74%, 94% { opacity: 0; transform: translateY(30%); } }
+@keyframes m-bounce { 0%, 100% { transform: none; } 50% { transform: translateY(-5%); } }
+@keyframes m-breathe { 0%, 100% { transform: none; } 50% { transform: scale(1.015, 1.045); } }
+@keyframes m-tail { 0%, 78%, 100% { transform: none; } 85% { transform: rotate(-8deg); } 92% { transform: rotate(4deg); } }
+@keyframes m-headbob { 0%, 100% { transform: none; } 50% { transform: translateY(1.5%); } }
+@keyframes m-twinkle { 0%, 100% { transform: scale(.6); opacity: .6; } 50% { transform: scale(1.15) rotate(15deg); opacity: 1; } }
+@keyframes m-zz { 0% { opacity: 0; transform: translate(-6%, 25%); } 30%, 70% { opacity: 1; } 100% { opacity: 0; transform: translate(10%, -30%); } }
+
+/* mood-change stories (about 2.4s), then the page swaps in the looping version */
+@keyframes m-out-late { 0%, 78% { opacity: 1; } 92%, 100% { opacity: 0; } }
+@keyframes m-in-late { 0%, 76% { opacity: 0; } 92%, 100% { opacity: 1; } }
+@keyframes m-out-mid { 0%, 36% { opacity: 1; } 48%, 100% { opacity: 0; } }
+@keyframes m-in-mid { 0%, 38% { opacity: 0; } 50%, 100% { opacity: 1; } }
+@keyframes m-fade-out { to { opacity: 0; } }
+@keyframes m-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes m-pop-in { 0% { opacity: 0; transform: scale(0); } 70% { opacity: 1; transform: scale(1.25); } 100% { opacity: 1; transform: none; } }
+@keyframes m-yawn-sink { 0% { transform: none; } 18% { transform: scale(1.04, 1.1); } 30% { transform: none; } 55%, 100% { transform: translateY(72%); } }
+@keyframes m-wobble { 0%, 100% { transform: none; } 20% { transform: rotate(-5deg); } 45% { transform: rotate(4deg); } 70% { transform: rotate(-3deg); } 85% { transform: rotate(1.5deg); } }
+@keyframes m-plop { 0%, 78% { opacity: 0; transform: translateY(-14%) scale(.9); } 90% { opacity: 1; transform: translateY(2%) scale(1.04, .95); } 100% { opacity: 1; transform: none; } }
+@keyframes m-twitch { 0%, 100% { transform: none; } 50% { transform: rotate(-16deg); } }
+@keyframes m-jack { 0%, 42% { transform: translateY(72%); } 62% { transform: translateY(-12%); } 72% { transform: translateY(4%); } 80%, 100% { transform: none; } }
+@keyframes m-squash { 0%, 58% { transform: none; } 64% { transform: scale(1.05, .93); } 74%, 100% { transform: none; } }
+@keyframes m-bubble-pop { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(2.2); opacity: .8; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes m-startle { 0%, 18% { transform: none; } 28% { transform: translateY(-12%) scale(.96, 1.05); } 38%, 100% { transform: none; } }
+@keyframes m-nod-once { 0% { transform: none; } 30% { transform: rotate(6deg); } 38% { transform: rotate(-2deg); } 62%, 100% { transform: rotate(8deg) translateY(3%); } }
+
+/* Box cat: Bedtime (yawn, sink into the box, box wobbles, curls up) */
+.tr-bedtime .ly-a { animation: m-out-late 2.4s forwards; }
+.tr-bedtime .ly-a [data-part="cat"] { transform-origin: 50% 100%; animation: m-yawn-sink 2.4s ease-in-out forwards; }
+.tr-bedtime .ly-a [data-part="paws"] { animation: m-fade-out .35s .7s forwards; }
+.tr-bedtime .ly-a [data-part="box"] { transform-origin: 50% 100%; animation: m-wobble .8s 1.3s ease-in-out both; }
+.tr-bedtime .ly-a [data-part="zz"], .tr-bedtime .ly-a [data-part="moon"] { opacity: 0; }
+.tr-bedtime .ly-b { transform-origin: 50% 100%; animation: m-plop 2.4s ease-out forwards; }
+.tr-bedtime .ly-b [data-part="moon"], .tr-bedtime .ly-b [data-part="zz"] { animation: m-fade-in .5s 2.2s both; }
+/* Box cat: Good morning (ear twitch, jack-in-the-box pop, sparkles) */
+.tr-morning .ly-a { animation: m-out-mid 2.4s forwards; }
+.tr-morning .ly-a [data-part="ear-l"] { transform-origin: 50% 100%; animation: m-twitch .35s .1s 2 ease-in-out; }
+.tr-morning .ly-a [data-part="zz"], .tr-morning .ly-a [data-part="moon"] { animation: m-fade-out .4s forwards; }
+.tr-morning .ly-b { animation: m-in-mid 2.4s forwards; }
+.tr-morning .ly-b [data-part="cat"] { animation: m-jack 2.4s ease-out forwards; }
+.tr-morning .ly-b [data-part="box"] { transform-origin: 50% 100%; animation: m-squash 2.4s forwards; }
+.tr-morning .ly-b [data-part="paws"] { animation: m-fade-in .3s 1.6s both; }
+.tr-morning .ly-b [data-part="sparkles"] { animation: m-pop-in .5s 1.8s both; }
+/* Duck: Bubble pop wake-up */
+.tr-pop .ly-a { animation: m-out-mid 2.4s forwards; }
+.tr-pop .ly-a [data-part="bubble"] { transform-origin: 30% 30%; animation: m-bubble-pop .5s forwards; }
+.tr-pop .ly-a [data-part="duck"] { transform-origin: 50% 100%; animation: m-startle 2.4s forwards; }
+.tr-pop .ly-b { animation: m-in-mid 2.4s forwards; }
+.tr-pop .ly-b [data-part="duck"] { transform-origin: 50% 100%; animation: m-hop-once .9s 1.2s both; }
+/* Duck: Dozing off */
+.tr-doze .ly-a { animation: m-out-late 2.4s forwards; }
+.tr-doze .ly-a [data-part="duck"] { transform-origin: 50% 100%; animation: m-nod-once 2.4s ease-in-out forwards; }
+.tr-doze .ly-b { animation: m-in-late 2.4s forwards; }
+.tr-doze .ly-b [data-part="bubble"] { transform-origin: 30% 30%; animation: m-pop-in .6s 2s both; }
+/* anything else: a soft crossfade */
+.tr-swap .ly-a { animation: m-out-mid 1.2s forwards; }
+.tr-swap .ly-b { animation: m-in-mid 1.2s forwards; }
+
+/* Tap: the box cat gets booped, the curled cat perks up, the duck quacks */
+@keyframes m-boop { 0% { transform: none; } 30% { transform: translateY(-14%); } 60% { transform: translateY(3%); } 100% { transform: none; } }
+@keyframes m-perk { 0%, 100% { transform: none; } 35% { transform: translateY(-7%) rotate(-5deg); } }
+@keyframes m-quack { 0%, 100% { transform: none; } 25%, 60% { transform: scale(1.15, 1.6); } 42% { transform: scale(1.1, 1.1); } }
+@keyframes m-pop-note { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; transform: scale(1.1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20%); } }
+.mz.tap [data-part="box"] { transform-origin: 50% 100%; animation: m-wobble .7s ease-in-out; }
+.mz.tap [data-part="cat"] { animation: m-boop .7s ease-out; }
+.mz.tap [data-part="head"] { transform-origin: 50% 100%; animation: m-perk .7s ease-out; }
+.mz.tap [data-part="bill"] { transform-origin: 50% 25%; animation: m-quack .6s ease-in-out; }
+.mz.tap [data-part="duck"] { transform-origin: 50% 100%; animation: m-hop-once .6s; }
+.mz.m-duck.tap::after, .mz.m-catbox.tap::after { content: ""; position: absolute; pointer-events: none; animation: m-pop-note .8s ease-out forwards; }
+.mz.m-duck.tap::after { left: -34%; top: 30%; transform-origin: right center; scale: -1 1; width: 40%; height: 40%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%23ff9f43' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M6 12 L16 6'/%3E%3Cpath d='M8 21 H20'/%3E%3Cpath d='M6 30 L16 36'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain; }
+.mz.m-catbox.tap::after { content: "!"; left: -4%; top: -6%; font: 900 18px/1 var(--ios); color: #6d5f96; }
+@media (prefers-reduced-motion: reduce) { .mz *, .mz.tap::after { animation: none !important; } }
+
+
+/* long-press on a widget: jump to the style panel, like "Edit Widget" */
+@keyframes panel-flash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.style-panel.flash { animation: panel-flash .9s ease-out 2; border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .style-panel.flash { animation: none; } }
+
+
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+var SVG = /*SVG_JSON*/{};
+var FILES = {
+  duck: { happy: "duck-happy", calm: "duck-calm", sleepy: "duck-sleepy" },
+  catbox: { happy: "cat-box-peeker-happy", calm: "cat-box-peeker", sleepy: "cat-cozy-curl" }
+};
+var REDUCED = false;
+try { REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+function clean(t) {
+  return (t || "").replace(/<title>[\s\S]*?<\/title>/, "").replace(/<metadata>[\s\S]*?<\/metadata>/, "")
+    .replace(/<svg[^>]*>/, function (tag) {
+      return tag.replace(/\s(width|height|role|aria-label)="[^"]*"/g, "").replace("<svg", '<svg aria-hidden="true"');
+    });
+}
+function layer(file, cls) { return '<span class="ly f-' + file + (cls ? " " + cls : "") + '">' + clean(SVG[file]) + "</span>"; }
+function transitionFor(kind, from, to) {
+  if (!from || from === to) return null;
+  if (kind === "catbox") {
+    if (to === "sleepy") return { name: "bedtime", a: "cat-box-peeker-sleepy" };
+    if (from === "sleepy") return { name: "morning", a: "cat-cozy-curl" };
+  }
+  if (kind === "duck") {
+    if (from === "sleepy") return { name: "pop", a: "duck-sleepy" };
+    if (to === "sleepy") return { name: "doze", a: FILES.duck[from] };
+  }
+  return { name: "swap", a: FILES[kind][from] };
+}
+var current = null, settleTimer = null;
+function draw(kind, mood, from) {
+  var stage = document.getElementById("stage");
+  var file = FILES[kind][mood];
+  var base = "mascot m-" + kind + " f-" + file + " mz";
+  var tr = !REDUCED && transitionFor(kind, from, mood);
+  clearTimeout(settleTimer);
+  if (tr && SVG[tr.a]) {
+    stage.innerHTML = '<span class="' + base + " tr tr-" + tr.name + '">' + layer(tr.a, "ly-a") + layer(file, "ly-b") + "</span>";
+    settleTimer = setTimeout(function () { draw(kind, mood, null); }, 2700);
+  } else {
+    stage.innerHTML = '<span class="' + base + '">' + layer(file) + "</span>";
+  }
+}
+function setMascot(kind, mood) {
+  if (!FILES[kind]) { document.getElementById("stage").innerHTML = ""; current = null; return; }
+  var from = current && current.kind === kind ? current.mood : null;
+  if (current && current.kind === kind && current.mood === mood) return;
+  current = { kind: kind, mood: mood };
+  draw(kind, mood, from);
+}
+// Tap: the box cat gets booped, the curled cat perks up, the duck quacks.
+document.addEventListener("click", function (e) {
+  var m = e.target.closest(".mz");
+  if (!m || m.classList.contains("tr")) return;
+  m.classList.remove("tap"); void m.offsetWidth; m.classList.add("tap");
+  clearTimeout(m._t); m._t = setTimeout(function () { m.classList.remove("tap"); }, 900);
+});
+</script>
+</body>
+</html>

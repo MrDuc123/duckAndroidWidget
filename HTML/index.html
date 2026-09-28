@@ -1,0 +1,1201 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>AI News Widgets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Roboto:wght@400;500;700&display=swap">
+<style>
+:root {
+  --ground: #EDEFF3;
+  --surface: #FFFFFF;
+  --ink: #14171C;
+  --muted: #5A6170;
+  --line: #D6DAE2;
+  --accent: #3056E8;
+  --accent-soft: #E3E9FF;
+
+  --w-bg: rgba(255,255,255,0.86);
+  --w-ink: #111318;
+  --w-muted: #6B7280;
+  --w-line: rgba(17,19,24,0.08);
+  --a-bg: rgba(250,250,252,0.92);
+  --a-chip: #EEF0F5;
+  --a-chip-on: #1F2A44;
+  --a-chip-on-ink: #FFFFFF;
+
+  --src-research: #C2410C;
+  --src-industry: #2563EB;
+  --src-community: #0F9D76;
+  --on-tone: #FFFFFF;
+  --rainbow: linear-gradient(90deg, var(--src-research), #E0457B 35%, var(--src-industry) 68%, var(--src-community));
+  --rainbow-deep: linear-gradient(120deg, #C2410C, #BE2F6A 40%, #2563EB);
+
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --ios: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Helvetica Neue", sans-serif;
+  --droid: "Roboto", system-ui, "Helvetica Neue", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #0F1115; --surface: #181B21; --ink: #E8EAEE; --muted: #99A0AD;
+    --line: #2A2F38; --accent: #7C98FF; --accent-soft: #1E2744;
+    --w-bg: rgba(28,30,36,0.86); --w-ink: #F2F3F5; --w-muted: #9CA3AF; --w-line: rgba(255,255,255,0.09);
+    --a-bg: rgba(24,26,32,0.92); --a-chip: #2A2E38; --a-chip-on: #C9D5FF; --a-chip-on-ink: #10152A;
+    --src-research: #FB923C; --src-industry: #7CA6FF; --src-community: #34D399; --on-tone: #10131A;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0F1115; --surface: #181B21; --ink: #E8EAEE; --muted: #99A0AD;
+  --line: #2A2F38; --accent: #7C98FF; --accent-soft: #1E2744;
+  --w-bg: rgba(28,30,36,0.86); --w-ink: #F2F3F5; --w-muted: #9CA3AF; --w-line: rgba(255,255,255,0.09);
+  --a-bg: rgba(24,26,32,0.92); --a-chip: #2A2E38; --a-chip-on: #C9D5FF; --a-chip-on-ink: #10152A;
+  --src-research: #FB923C; --src-industry: #7CA6FF; --src-community: #34D399; --on-tone: #10131A;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 56px; }
+
+header { display: grid; gap: 10px; max-width: 66ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); }
+.sample-note { display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; font-size: 13px; padding: 5px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); }
+.sample-note b { font-weight: 600; }
+
+.stage { display: flex; flex-wrap: wrap; gap: 48px 40px; justify-content: center; align-items: flex-start; margin-top: 36px; }
+.device-col { display: grid; gap: 12px; justify-items: center; min-width: 0; max-width: 100%; }
+.device-label { font-family: var(--display); font-weight: 600; font-size: 20px; }
+.device-sub { font-size: 13px; color: var(--muted); margin-top: -8px; text-align: center; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { font: 500 13px var(--body); color: var(--muted); background: transparent; border: 0; border-radius: 999px; padding: 6px 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.seg button:focus-visible, .chip:focus-visible, .item:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- phone frames ---------- */
+.fit { position: relative; max-width: 100%; }
+.phone {
+  position: absolute; top: 0; left: 0; transform-origin: top left;
+  border-radius: 44px; padding: 11px; background: #0B0C0F;
+  box-shadow: 0 0 0 1.5px #2B2E35, 0 30px 60px -20px rgba(10,12,20,0.45);
+  transition: width .35s ease, height .35s ease;
+}
+.phone.open { border-radius: 32px; }
+.screen { position: relative; height: 100%; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; }
+.phone.open .screen { border-radius: 22px; }
+.phone.android { border-radius: 34px; padding: 9px; }
+.phone.android .screen { border-radius: 26px; }
+.phone.android.open { border-radius: 26px; }
+.phone.android.open .screen { border-radius: 18px; }
+
+.crease { position: absolute; top: 0; bottom: 0; left: 50%; width: 14px; transform: translateX(-50%); pointer-events: none; z-index: 4;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07) 40%, rgba(0,0,0,0.12) 50%, rgba(255,255,255,0.07) 60%, transparent); }
+.phone:not(.open) .crease { display: none; }
+
+.status { display: flex; justify-content: space-between; align-items: center; padding: 14px 26px 0; height: 44px; font-size: 13px; font-weight: 600; color: #fff; flex: none; }
+.island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 84px; height: 24px; background: #000; border-radius: 20px; z-index: 5; }
+.phone.open .island { left: 75%; width: 12px; height: 12px; top: 14px; }
+.punch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 11px; height: 11px; background: #000; border-radius: 50%; z-index: 5; }
+.phone.open .punch { left: 75%; }
+.sys-icons { display: inline-flex; gap: 5px; align-items: center; }
+.sys-icons i { display: block; background: #fff; border-radius: 2px; }
+
+/* iPhone */
+.ios .screen {
+  font-family: var(--ios);
+  background:
+    radial-gradient(120% 70% at 15% 10%, #5B7CFA 0%, transparent 60%),
+    radial-gradient(90% 60% at 90% 85%, #F08A5D 0%, transparent 65%),
+    linear-gradient(170deg, #26306B, #3B2A55 60%, #6B3B4A);
+}
+.ios-grid { flex: 1; display: grid; padding: 12px 18px 0; align-content: start; min-height: 0; }
+.app { display: grid; justify-items: center; align-content: start; gap: 4px; }
+.app span { width: var(--icon); height: var(--icon); border-radius: 12px; display: block; opacity: 0.9; }
+.app small { font-size: 10.5px; color: rgba(255,255,255,0.92); white-space: nowrap; }
+.dock { margin: 0 auto 12px; padding: 12px 14px; border-radius: 28px; background: rgba(255,255,255,0.2); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; gap: 16px; justify-content: center; flex: none; }
+.dock span { width: 46px; height: 46px; border-radius: 12px; display: block; opacity: 0.9; }
+
+.iw {
+  background: var(--w-bg); color: var(--w-ink);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-radius: 22px; padding: 12px 13px; overflow: hidden;
+  display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.iw-head { display: flex; justify-content: space-between; align-items: baseline; }
+.iw-brand { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.iw-time { font-size: 10.5px; color: var(--w-muted); }
+.iw-list { display: grid; grid-template-columns: 1fr; column-gap: 18px; min-height: 0; align-content: start; }
+.iw.xl .iw-list { grid-template-columns: 1fr 1fr; grid-auto-flow: column; grid-template-rows: repeat(4, auto); }
+.iw .item { display: grid; grid-template-columns: 6px 1fr; gap: 0 8px; padding: 5px 0; border: 0; border-top: 1px solid var(--w-line); cursor: pointer; text-align: left; background: none; color: inherit; font: inherit; min-width: 0; }
+.iw .item.first { border-top: 0; }
+.dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 6px; }
+.iw .title { font-size: 12.5px; font-weight: 600; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.iw.medium .title, .iw.xl .title { -webkit-line-clamp: 1; }
+.iw .meta { grid-column: 2; font-size: 10.5px; color: var(--w-muted); }
+.iw.small .title { -webkit-line-clamp: 3; font-size: 13.5px; }
+.iw.medium .item { padding: 3px 0; }
+.iw.small .more { margin-top: auto; font-size: 10.5px; color: var(--w-muted); }
+
+/* Android */
+.android .screen {
+  font-family: var(--droid);
+  background:
+    radial-gradient(90% 55% at 80% 15%, #3FB6A8 0%, transparent 60%),
+    radial-gradient(100% 70% at 10% 95%, #2F4FA8 0%, transparent 65%),
+    linear-gradient(165deg, #10354A, #142447 70%);
+}
+.a-clock { color: #fff; padding: 8px 20px 0; flex: none; }
+.a-clock b { font-size: 38px; font-weight: 400; letter-spacing: -0.02em; display: block; line-height: 1; }
+.a-clock small { font-size: 12px; opacity: 0.85; }
+
+.aw {
+  margin: 14px 10px 0; flex: 1; min-height: 0;
+  background: var(--a-bg); color: var(--w-ink);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-radius: 24px; padding: 14px 12px 10px; display: flex; flex-direction: column; gap: 10px;
+}
+.phone.open .aw { margin: 14px 16px 0; }
+.aw-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
+.aw-head h3 { margin: 0; font-size: 16px; font-weight: 700; }
+.icon-btn { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--a-chip); color: var(--w-ink); display: grid; place-items: center; cursor: pointer; }
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn.spin svg { animation: spin 0.8s linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 0 2px; }
+.chip { flex: none; font: 500 12px var(--droid); border: 0; border-radius: 999px; padding: 6px 11px; background: var(--a-chip); color: var(--w-ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--a-chip-on); color: var(--a-chip-on-ink); }
+.aw-list { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: 1fr; align-content: start; column-gap: 14px; scrollbar-width: thin; }
+.phone.open .aw-list { grid-template-columns: 1fr 1fr; }
+.aw .item { display: grid; grid-template-columns: 8px 1fr; gap: 2px 10px; padding: 9px 6px; border: 0; border-top: 1px solid var(--w-line); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: 10px; min-width: 0; }
+.aw .item.first { border-top: 0; }
+.aw .item:hover { background: var(--w-line); }
+.aw .dot { width: 8px; height: 8px; margin-top: 5px; }
+.aw .title { font-size: 13.5px; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.phone.open .aw .title { -webkit-line-clamp: 3; }
+.aw .meta { grid-column: 2; font-size: 11.5px; color: var(--w-muted); }
+.aw-foot { font-size: 11px; color: var(--w-muted); text-align: center; }
+.a-apps { display: flex; justify-content: space-around; padding: 14px 16px 8px; flex: none; }
+.a-apps span { width: 44px; height: 44px; border-radius: 15px; display: block; opacity: 0.9; }
+.navbar { height: 18px; display: grid; place-items: center; flex: none; margin-bottom: 6px; }
+.navbar i { width: 110px; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.8); }
+
+.toast {
+  position: absolute; left: 50%; bottom: 70px; transform: translate(-50%, 10px);
+  background: rgba(20,22,28,0.92); color: #fff; font-size: 12px; padding: 8px 14px; border-radius: 999px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 6;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.notes { margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; }
+.note { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.note h2 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 0; }
+.note p { margin: 0; color: var(--muted); font-size: 14px; }
+.note code { font-family: var(--mono); font-size: 12.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* ---------- color + icon layer ---------- */
+.ic { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; display: block; }
+body {
+  background:
+    radial-gradient(40vw 32vw at 4% 0%, color-mix(in srgb, var(--src-research) 16%, transparent), transparent 70%),
+    radial-gradient(44vw 34vw at 96% 6%, color-mix(in srgb, var(--src-industry) 18%, transparent), transparent 70%),
+    radial-gradient(50vw 40vw at 50% 100%, color-mix(in srgb, var(--src-community) 14%, transparent), transparent 70%),
+    var(--ground);
+  background-attachment: fixed;
+}
+.grad { background: var(--rainbow); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 500; }
+.eyebrow .ic { font-size: 15px; }
+.sample-note { border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.sample-note .ic { font-size: 16px; color: var(--accent); }
+.cat-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 500 12.5px var(--body); padding: 4px 11px 4px 5px; border-radius: 999px;
+  color: var(--tone); background: color-mix(in srgb, var(--tone) 13%, var(--surface)); border: 1px solid color-mix(in srgb, var(--tone) 28%, transparent); }
+.pill .badge { width: 20px; height: 20px; font-size: 12px; }
+.t-research { --tone: var(--src-research); } .t-industry { --tone: var(--src-industry); } .t-community { --tone: var(--src-community); } .t-accent { --tone: var(--accent); }
+
+.device-label { display: inline-flex; align-items: center; gap: 10px; }
+.device-label .badge { width: 32px; height: 32px; font-size: 18px; border-radius: 10px; color: var(--on-tone); background: var(--tone); }
+.seg button { display: inline-flex; align-items: center; gap: 6px; }
+.seg button .ic { font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--rainbow-deep); color: #fff; }
+
+.badge { display: grid; place-items: center; border-radius: 6px; color: var(--tone); background: color-mix(in srgb, var(--tone) 18%, transparent); }
+.iw .item { grid-template-columns: 18px 1fr; }
+.iw .cat { width: 18px; height: 18px; font-size: 11px; border-radius: 5px; margin-top: 1px; }
+.aw .item { grid-template-columns: 26px 1fr; }
+.aw .cat { width: 26px; height: 26px; font-size: 14px; border-radius: 8px; }
+.meta .src { color: var(--tone); font-weight: 600; }
+
+.iw { box-shadow: inset 0 0 0 1px var(--w-line); }
+.iw-brand { display: inline-flex; align-items: center; gap: 5px; }
+.iw-brand .ic { font-size: 13px; color: var(--src-research); }
+.iw-brand b { background: var(--rainbow); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+.iw-bar { height: 3px; border-radius: 3px; background: var(--rainbow); margin: -2px 0 2px; opacity: .85; flex: none; }
+.aw-head h3 { display: inline-flex; align-items: center; gap: 8px; }
+.aw-head h3 .badge { width: 28px; height: 28px; font-size: 16px; border-radius: 9px; color: #fff; background: var(--rainbow-deep); }
+.aw-head h3 span { background: var(--rainbow); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.icon-btn { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.chip { display: inline-flex; align-items: center; gap: 5px; color: var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); }
+.chip .ic { font-size: 13px; }
+.chip[aria-pressed="true"] { background: var(--tone); color: var(--on-tone); }
+#f-all { --tone: var(--a-chip-on); }
+#f-all[aria-pressed="true"] { color: var(--a-chip-on-ink); }
+
+.app span, .dock span, .a-apps span { display: grid; place-items: center; color: #fff; opacity: 1;
+  background-image: linear-gradient(160deg, rgba(255,255,255,0.32), rgba(255,255,255,0) 60%);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18); }
+.app span .ic { width: 52%; height: 52%; }
+.dock span .ic, .a-apps span .ic { width: 50%; height: 50%; }
+
+.note { position: relative; overflow: hidden; border-color: color-mix(in srgb, var(--tone) 30%, var(--line));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tone) 9%, var(--surface)), var(--surface) 70%); }
+.note h2 { display: flex; align-items: center; gap: 10px; }
+.note h2 .badge { width: 32px; height: 32px; font-size: 17px; border-radius: 10px; color: var(--on-tone); background: var(--tone); }
+.legend { gap: 8px; }
+.iw.medium .title, .iw.xl .title { max-height: 1.25em; }
+
+/* ---------- featured story ---------- */
+.item.feat { grid-column: 1 / -1; border-top: 0 !important; border-radius: 12px; background: color-mix(in srgb, var(--tone) 15%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 22%, transparent); }
+.kicker { grid-column: 2; font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tone); line-height: 1.2; }
+.iw .item.feat { padding: 6px 8px; margin-bottom: 3px; }
+.iw .item.feat .cat { grid-row: span 2; width: 26px; height: 26px; font-size: 15px; border-radius: 8px; }
+.iw .item.feat { grid-template-columns: 26px 1fr; }
+.iw .item.feat .title { font-size: 13.5px; -webkit-line-clamp: 2; max-height: 2.5em; }
+.iw.xl .item.feat .title { -webkit-line-clamp: 1; max-height: 1.3em; font-size: 14px; }
+.iw.xl .item { padding-block: 4px; }
+.iw.medium .item.feat .title { -webkit-line-clamp: 1; max-height: 1.3em; }
+.iw.small .iw-time, .iw.small .item.feat .cat { display: none; }
+.iw.small .item.feat .title { font-size: 13px; }
+.iw.small .item.feat { grid-template-columns: 1fr; padding: 8px 9px; flex: 1; align-content: start; gap: 3px; }
+.iw.small .item.feat .kicker, .iw.small .item.feat .meta { grid-column: 1; }
+.iw.small .item.feat .title { -webkit-line-clamp: 4; max-height: 5em; }
+.iw-list { flex: 1; min-height: 0; overflow: hidden; position: relative; }
+.iw.xl .iw-list { grid-auto-flow: row; grid-template-rows: none; }
+.aw .item.feat { padding: 12px 10px; margin-bottom: 4px; grid-template-columns: 36px 1fr; }
+.aw .item.feat .cat { grid-row: span 3; width: 36px; height: 36px; font-size: 19px; border-radius: 11px; }
+.aw .item.feat .title { font-size: 15.5px; font-weight: 600; }
+.aw-list { -webkit-mask-image: linear-gradient(#000 calc(100% - 26px), transparent); mask-image: linear-gradient(#000 calc(100% - 26px), transparent); padding-bottom: 18px; }
+
+
+/* ---------- small iPhone widget ---------- */
+.iw.small { position: relative; gap: 6px; padding: 12px 12px 11px;
+  background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 34%, var(--w-bg)) 0%, var(--w-bg) 78%); }
+.iw.small .sw-mark { position: absolute; right: -14px; bottom: -14px; width: 78px; height: 78px; color: var(--tone); opacity: 0.13; stroke-width: 1.6; pointer-events: none; }
+.sw-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none; }
+.sw-head .iw-brand { font-size: 10px; }
+.sw-head .cat { width: 20px; height: 20px; font-size: 12px; border-radius: 6px; }
+.iw.small .sw-story { display: flex; flex-direction: column; gap: 3px; flex: 1; min-height: 0; padding: 0; border: 0; text-align: left; position: relative; }
+.iw.small .sw-story .title { font-size: 13.5px; font-weight: 700; line-height: 1.22; letter-spacing: -0.01em; -webkit-line-clamp: 4; max-height: none; }
+.phone.open .iw.small .sw-story .title { -webkit-line-clamp: 3; }
+.phone:not(.open) .iw.small { padding: 11px 10px 10px; }
+.phone:not(.open) .iw.small .sw-story .title { font-size: 12.5px; }
+.sw-head .iw-brand { white-space: nowrap; }
+.sw-meta { margin-top: auto; display: flex; justify-content: space-between; gap: 6px; font-size: 10.5px; color: var(--w-muted); white-space: nowrap; }
+.sw-meta .src { color: var(--tone); font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+
+
+/* ---------- widget color picker ---------- */
+.swatches { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); max-width: 100%; }
+.sw-label { font-size: 13px; font-weight: 500; color: var(--muted); margin-right: 2px; }
+.sw { position: relative; width: 24px; height: 24px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--sw); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); flex: none; }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+.sw:focus-visible, .sw-custom:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.sw-custom { display: grid; place-items: center; color: var(--ink); background: var(--sw, conic-gradient(#EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6, #EC4899, #EF4444)); }
+.sw-custom .ic { width: 13px; height: 13px; stroke-width: 3; color: #fff; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); }
+.sw-custom input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; }
+
+
+/* ---------- source badges ---------- */
+.meta { display: flex; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; }
+.meta .src { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.meta .ago { flex: none; }
+.sb { display: inline-grid; place-items: center; flex: none; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--sb); color: #fff; font: 700 7px/1 var(--ios); letter-spacing: -0.03em;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--sb) 25%, transparent); }
+.aw .sb { width: 17px; height: 17px; font-size: 8px; font-family: var(--droid); }
+.aw .item.feat .sb { width: 18px; height: 18px; }
+.sw-src { display: flex; align-items: center; gap: 4px; min-width: 14px; overflow: hidden; }
+.sw-meta > span:last-child { flex: none; }
+
+
+/* ---------- mascots ---------- */
+.mascot { position: absolute; pointer-events: none; overflow: hidden; }
+.iw.small .mascot { right: 2px; bottom: -1px; width: 44px; height: 44px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12)); }
+.phone:not(.open) .iw.small .mascot { width: 40px; height: 40px; }
+.iw.small.has-mascot .sw-meta { padding-right: 42px; justify-content: flex-start; }
+.iw.small.has-mascot .sw-meta > span:last-child::before { content: "· "; }
+.phone.open .iw.small.has-mascot .sw-story .title { -webkit-line-clamp: 2; }
+.iw-head .mini { position: relative; display: inline-block; width: 24px; height: 20px; margin-left: auto; flex: none; }
+.iw-head .mini .mascot { inset: 0; width: 100%; height: 100%; }
+.iw-head { gap: 6px; align-items: center; }
+.mini .prop-industry, .mini .prop-community { display: none; }
+.m-tone { fill: var(--tone); }
+.m-tone-d { fill: color-mix(in srgb, var(--tone) 70%, #000); }
+.m-eye { transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.12); } }
+.m-ico { display: inline-block; width: 18px; height: 16px; margin: -2px 0; }
+.m-ico .mascot { position: static; width: 100%; height: 100%; }
+.m-ico .prop-industry, .m-ico .prop-community, .m-ico .prop-research { display: none; }
+@media (prefers-reduced-motion: reduce) { .m-eye { animation: none; } }
+/* mascot as a faded watermark behind the text */
+.iw.small.wm .mascot { right: -12px; bottom: -10px; width: 96px; height: 96px; opacity: 0.3; filter: blur(1.4px) saturate(1.2); transform: rotate(-8deg); }
+.phone:not(.open) .iw.small.wm .mascot { width: 86px; height: 86px; }
+.iw.small.wm .prop-industry, .iw.small.wm .prop-community { display: none; }
+.iw.small.wm .sw-meta { padding-right: 0; justify-content: space-between; }
+.iw.small.wm .sw-meta > span:last-child::before { content: none; }
+.phone.open .iw.small.wm .sw-story .title { -webkit-line-clamp: 3; }
+.iw.small .sw-head { position: relative; }
+
+
+
+/* mascot moods */
+.m-spark { fill: #FFC93C; stroke: #fff; stroke-width: 1.6; paint-order: stroke; animation: twinkle 1.6s ease-in-out infinite; }
+.m-spark.s2 { animation-delay: .5s; fill: var(--tone); }
+.m-spark.s3 { animation-delay: 1s; }
+.m-excited { transform-box: view-box; transform-origin: 55px 100px; animation: bop 1.4s ease-in-out infinite; }
+.m-z text { animation: zfloat 2.4s ease-in-out infinite; }
+.m-z .z2 { animation-delay: .5s; } .m-z .z3 { animation-delay: 1s; }
+@keyframes twinkle { 0%, 100% { transform: scale(0.6) rotate(0deg); opacity: .6; } 50% { transform: scale(1.1) rotate(20deg); opacity: 1; } }
+@keyframes bop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes zfloat { 0% { opacity: 0; transform: translate(0, 4px); } 30%, 70% { opacity: 1; } 100% { opacity: 0; transform: translate(3px, -4px); } }
+.m-sleepy .m-eye { animation: none; }
+.seg-label { align-self: center; font-size: 13px; color: var(--muted); padding: 0 6px 0 10px; }
+@media (prefers-reduced-motion: reduce) { .m-spark, .m-excited, .m-z text { animation: none; } }
+
+
+/* ---------- mascot images (assets/mascots/*.svg) ---------- */
+img.mascot { display: block; object-fit: contain; user-select: none; }
+.iw.small .mascot { right: 0; bottom: 0; width: 52px; height: 52px; filter: none; }
+.phone:not(.open) .iw.small .mascot { width: 46px; height: 46px; }
+.iw.small.has-mascot .mascot.f-cat-cozy-curl { width: 58px; height: 58px; right: -2px; }
+.iw.small.has-mascot .sw-meta { padding-right: 50px; }
+.iw.small.wm .mascot { right: -14px; bottom: -12px; width: 100px; height: 100px; opacity: 0.3; filter: blur(1.4px) saturate(1.2); transform: rotate(-8deg); }
+.phone:not(.open) .iw.small.wm .mascot { width: 90px; height: 90px; }
+.iw-head .mini { width: 26px; height: 26px; margin: -4px 0 -4px auto; }
+.m-ico { width: 20px; height: 20px; margin: -3px 0; }
+.m-ico .mascot { position: static; width: 100%; height: 100%; }
+
+
+/* ---------- shared style panel ---------- */
+.style-panel { margin-top: 28px; padding: 16px; border-radius: 18px; background: color-mix(in srgb, var(--surface) 80%, transparent); border: 1px solid var(--line); display: grid; gap: 12px; justify-items: center; }
+.style-panel h2 { margin: 0; font-family: var(--display); font-size: 18px; font-weight: 600; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px 10px; }
+.style-panel h2 span { font-family: var(--body); font-size: 13px; font-weight: 400; color: var(--muted); }
+.style-rows { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 100%; }
+.style-rows .seg { flex-wrap: wrap; justify-content: center; max-width: 100%; }
+
+/* ---------- Galaxy widget: color, mascot, mood ---------- */
+.aw { position: relative; overflow: hidden;
+  background: linear-gradient(155deg, color-mix(in srgb, var(--tone, var(--accent)) 24%, var(--a-bg)) 0%, var(--a-bg) 55%); }
+.aw > :not(.aw-wm) { position: relative; z-index: 1; }
+.aw-foot { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.aw.has-mascot .aw-foot { justify-content: space-between; text-align: left; margin: -4px 0 -10px; padding-left: 4px; }
+.aw-m:empty { display: none; }
+.aw-m .mascot { position: static; width: 54px; height: 54px; }
+.phone:not(.open) .aw-m .mascot { width: 48px; height: 48px; }
+.aw-m .mascot.f-cat-cozy-curl { width: 62px; }
+.aw-wm { position: absolute; right: -22px; bottom: -18px; width: 170px; height: 170px; z-index: 0; pointer-events: none; }
+.aw-wm .mascot { position: static; width: 100%; height: 100%; opacity: 0.26; filter: blur(1.6px) saturate(1.2); transform: rotate(-8deg); }
+.aw-wm .sw-mark { width: 130px; height: 130px; margin: 20px 0 0 20px; color: var(--tone); opacity: 0.13; stroke-width: 1.6; }
+.phone:not(.open) .aw-wm { width: 140px; height: 140px; }
+
+
+/* ---------- Galaxy Z Fold 8 home screen grid + widget sizes ---------- */
+.android .a-clock { padding: 2px 18px 0; display: flex; align-items: baseline; gap: 8px; }
+.android .a-clock b { font-size: 26px; display: inline; }
+.a-grid { flex: 1; min-height: 0; display: grid; gap: 10px 8px; padding: 10px 14px 0; align-content: start; font-family: var(--droid); }
+.a-grid .app { display: grid; justify-items: center; align-content: center; gap: 4px; }
+.a-grid .app span { width: 46px; height: 46px; border-radius: 16px; }
+.a-grid .app small { font-size: 10.5px; color: rgba(255,255,255,0.92); white-space: nowrap; }
+.a-grid .aw { margin: 0; min-height: 0; height: 100%; padding: 12px 11px 8px; gap: 8px; }
+.a-grid .iw.small { font-family: var(--droid); border-radius: 24px; }
+.phone.open .aw-list { grid-template-columns: 1fr; }
+.aw.as-s84 .aw-list { grid-template-columns: 1fr 1fr; }
+.phone.open .aw .title { -webkit-line-clamp: 2; }
+.aw.as-s84 .title { -webkit-line-clamp: 3; }
+.aw.as-s42 .chips, .aw.as-s42 .aw-foot { display: none; }
+.aw.as-s42 .aw-head h3 { font-size: 14px; }
+.aw.as-s42 .aw-head h3 .badge { width: 24px; height: 24px; font-size: 14px; }
+.aw.as-s42 .item.feat { padding: 8px; }
+.aw.as-s42 .item.feat .title { font-size: 13.5px; -webkit-line-clamp: 2; }
+.aw-mini:empty { display: none; }
+.aw-mini { margin-left: auto; margin-right: 6px; width: 30px; height: 30px; }
+.aw-mini .mascot { position: static; width: 100%; height: 100%; }
+.a-apps { padding: 10px 16px 6px; }
+
+
+/* ---------- iPhone Duo layout ---------- */
+/* outer screen: portrait with a hole-punch camera */
+.phone.ios:not(.open) .island { width: 12px; height: 12px; top: 14px; border-radius: 50%; }
+.phone.ios:not(.open) .ios-grid { padding-top: 8px; }
+/* inner screen: landscape; Dynamic Island, status bar and dock move to a rail on the right */
+.phone.ios.open .screen { display: grid; grid-template-columns: 1fr 70px; grid-template-rows: auto 1fr; }
+.phone.ios.open .ios-grid { grid-column: 1; grid-row: 1 / 3; padding: 18px 8px 12px 20px; }
+.phone.ios.open .status { grid-column: 2; grid-row: 1; flex-direction: column; justify-content: flex-start; gap: 8px; height: auto; padding: 94px 0 0; }
+.phone.ios.open .dock { grid-column: 2; grid-row: 2; align-self: end; flex-direction: column; gap: 12px; margin: 0 10px 14px 0; padding: 10px 7px; border-radius: 22px; }
+.phone.ios.open .dock span { width: 42px; height: 42px; }
+.phone.ios.open .island { left: auto; right: 24px; top: 16px; transform: none; width: 22px; height: 64px; border-radius: 12px; }
+.phone.ios.open .toast { left: calc(50% - 35px); }
+
+/* the cover-screen 2x2 widgets are shorter than the inner-screen ones */
+.phone:not(.open) .iw.small .sw-story .title { -webkit-line-clamp: 2; }
+.phone:not(.open) .iw.small.wm .sw-story .title { -webkit-line-clamp: 3; }
+
+
+/* ---------- mascot animations (parts are labelled with data-part in the SVG files) ---------- */
+.mz { display: block; position: relative; pointer-events: auto; cursor: pointer; overflow: visible; }
+.wm .mz, .aw-wm .mz { pointer-events: none; }
+.iw.small .mz.mascot, .iw-head .mini .mz.mascot { position: absolute; }
+.iw.small.has-mascot .mz.mascot, .aw-m .mz, .aw-mini .mz { z-index: 2; }
+.mz .ly { display: block; width: 100%; height: 100%; }
+.mz.tr { display: grid; }
+.mz.tr .ly { grid-area: 1 / 1; }
+.mz svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.mz [data-part] { transform-box: fill-box; transform-origin: 50% 50%; }
+.mz [data-part="sparkles"] > *, .mz [data-part="zz"] > * { transform-box: fill-box; transform-origin: 50% 50%; }
+
+/* idle: duck */
+.f-duck-happy [data-part="duck"] { transform-origin: 50% 100%; animation: m-hop 2.4s ease-in-out infinite; }
+.f-duck-happy [data-part="wing-l"] { transform-origin: 90% 90%; animation: m-flap-l 2.4s ease-in-out infinite; }
+.f-duck-happy [data-part="wing-r"] { transform-origin: 10% 90%; animation: m-flap-r 2.4s ease-in-out infinite; }
+.f-duck-calm [data-part="duck"] { transform-origin: 50% 100%; animation: m-sway 3.4s ease-in-out infinite; }
+.f-duck-calm [data-part="eyes"], .f-cat-box-peeker [data-part="eyes"] { animation: m-blink 4.2s infinite; }
+.f-duck-sleepy [data-part="duck"] { transform-origin: 50% 100%; animation: m-nod 4.6s ease-in-out infinite; }
+.f-duck-sleepy [data-part="bubble"] { transform-origin: 30% 30%; animation: m-bubble 2.3s ease-in-out infinite; }
+/* idle: box cat */
+.f-cat-box-peeker [data-part="cat"] { animation: m-peek 8s ease-in-out infinite; }
+.f-cat-box-peeker [data-part="paws"] { animation: m-paws 8s ease-in-out infinite; }
+.f-cat-box-peeker-happy [data-part="cat"] { animation: m-bounce 1.8s ease-in-out infinite; }
+/* idle: curled cat (the box cat asleep) */
+.f-cat-cozy-curl [data-part="body"] { transform-origin: 50% 100%; animation: m-breathe 3.2s ease-in-out infinite; }
+.f-cat-cozy-curl [data-part="tail"] { transform-origin: 5% 95%; animation: m-tail 5s ease-in-out infinite; }
+.f-cat-cozy-curl [data-part="head"] { transform-origin: 50% 100%; animation: m-headbob 3.2s ease-in-out infinite; }
+/* shared twinkles and floating z's */
+.mz [data-part="sparkles"] > * { animation: m-twinkle 1.6s ease-in-out infinite; }
+.mz [data-part="sparkles"] > :nth-child(2) { animation-delay: .55s; }
+.mz [data-part="sparkles"] > :nth-child(3) { animation-delay: 1.1s; }
+.mz [data-part="zz"] > * { animation: m-zz 2.6s ease-in-out infinite; }
+.mz [data-part="zz"] > :nth-child(2) { animation-delay: .5s; }
+.mz [data-part="zz"] > :nth-child(3) { animation-delay: 1s; }
+
+@keyframes m-hop { 0%, 55%, 100% { transform: none; } 62% { transform: scale(1.07, .9); } 72% { transform: translateY(-14%) scale(.95, 1.06); } 82% { transform: scale(1.06, .92); } 90% { transform: none; } }
+@keyframes m-hop-once { 0%, 100% { transform: none; } 20% { transform: scale(1.07, .9); } 45% { transform: translateY(-14%) scale(.95, 1.06); } 70% { transform: scale(1.06, .92); } }
+@keyframes m-flap-l { 0%, 60%, 90%, 100% { transform: none; } 68%, 80% { transform: rotate(28deg); } 74% { transform: rotate(-8deg); } }
+@keyframes m-flap-r { 0%, 60%, 90%, 100% { transform: none; } 68%, 80% { transform: rotate(-28deg); } 74% { transform: rotate(8deg); } }
+@keyframes m-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes m-blink { 0%, 92%, 100% { transform: none; } 95% { transform: scaleY(.1); } }
+@keyframes m-nod { 0% { transform: none; } 45% { transform: rotate(4deg) translateY(2%); } 72% { transform: rotate(7deg) translateY(3%); } 76% { transform: rotate(-2deg); } 84%, 100% { transform: none; } }
+@keyframes m-bubble { 0%, 100% { transform: scale(.75); } 50% { transform: scale(1.3); } }
+@keyframes m-peek { 0%, 70%, 100% { transform: none; } 76%, 84% { transform: translateY(62%); } 92% { transform: translateY(40%); } }
+@keyframes m-paws { 0%, 70%, 97%, 100% { opacity: 1; transform: none; } 74%, 94% { opacity: 0; transform: translateY(30%); } }
+@keyframes m-bounce { 0%, 100% { transform: none; } 50% { transform: translateY(-5%); } }
+@keyframes m-breathe { 0%, 100% { transform: none; } 50% { transform: scale(1.015, 1.045); } }
+@keyframes m-tail { 0%, 78%, 100% { transform: none; } 85% { transform: rotate(-8deg); } 92% { transform: rotate(4deg); } }
+@keyframes m-headbob { 0%, 100% { transform: none; } 50% { transform: translateY(1.5%); } }
+@keyframes m-twinkle { 0%, 100% { transform: scale(.6); opacity: .6; } 50% { transform: scale(1.15) rotate(15deg); opacity: 1; } }
+@keyframes m-zz { 0% { opacity: 0; transform: translate(-6%, 25%); } 30%, 70% { opacity: 1; } 100% { opacity: 0; transform: translate(10%, -30%); } }
+
+/* mood-change stories (about 2.4s), then the page swaps in the looping version */
+@keyframes m-out-late { 0%, 78% { opacity: 1; } 92%, 100% { opacity: 0; } }
+@keyframes m-in-late { 0%, 76% { opacity: 0; } 92%, 100% { opacity: 1; } }
+@keyframes m-out-mid { 0%, 36% { opacity: 1; } 48%, 100% { opacity: 0; } }
+@keyframes m-in-mid { 0%, 38% { opacity: 0; } 50%, 100% { opacity: 1; } }
+@keyframes m-fade-out { to { opacity: 0; } }
+@keyframes m-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes m-pop-in { 0% { opacity: 0; transform: scale(0); } 70% { opacity: 1; transform: scale(1.25); } 100% { opacity: 1; transform: none; } }
+@keyframes m-yawn-sink { 0% { transform: none; } 18% { transform: scale(1.04, 1.1); } 30% { transform: none; } 55%, 100% { transform: translateY(72%); } }
+@keyframes m-wobble { 0%, 100% { transform: none; } 20% { transform: rotate(-5deg); } 45% { transform: rotate(4deg); } 70% { transform: rotate(-3deg); } 85% { transform: rotate(1.5deg); } }
+@keyframes m-plop { 0%, 78% { opacity: 0; transform: translateY(-14%) scale(.9); } 90% { opacity: 1; transform: translateY(2%) scale(1.04, .95); } 100% { opacity: 1; transform: none; } }
+@keyframes m-twitch { 0%, 100% { transform: none; } 50% { transform: rotate(-16deg); } }
+@keyframes m-jack { 0%, 42% { transform: translateY(72%); } 62% { transform: translateY(-12%); } 72% { transform: translateY(4%); } 80%, 100% { transform: none; } }
+@keyframes m-squash { 0%, 58% { transform: none; } 64% { transform: scale(1.05, .93); } 74%, 100% { transform: none; } }
+@keyframes m-bubble-pop { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(2.2); opacity: .8; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes m-startle { 0%, 18% { transform: none; } 28% { transform: translateY(-12%) scale(.96, 1.05); } 38%, 100% { transform: none; } }
+@keyframes m-nod-once { 0% { transform: none; } 30% { transform: rotate(6deg); } 38% { transform: rotate(-2deg); } 62%, 100% { transform: rotate(8deg) translateY(3%); } }
+
+/* Box cat: Bedtime (yawn, sink into the box, box wobbles, curls up) */
+.tr-bedtime .ly-a { animation: m-out-late 2.4s forwards; }
+.tr-bedtime .ly-a [data-part="cat"] { transform-origin: 50% 100%; animation: m-yawn-sink 2.4s ease-in-out forwards; }
+.tr-bedtime .ly-a [data-part="paws"] { animation: m-fade-out .35s .7s forwards; }
+.tr-bedtime .ly-a [data-part="box"] { transform-origin: 50% 100%; animation: m-wobble .8s 1.3s ease-in-out both; }
+.tr-bedtime .ly-a [data-part="zz"], .tr-bedtime .ly-a [data-part="moon"] { opacity: 0; }
+.tr-bedtime .ly-b { transform-origin: 50% 100%; animation: m-plop 2.4s ease-out forwards; }
+.tr-bedtime .ly-b [data-part="moon"], .tr-bedtime .ly-b [data-part="zz"] { animation: m-fade-in .5s 2.2s both; }
+/* Box cat: Good morning (ear twitch, jack-in-the-box pop, sparkles) */
+.tr-morning .ly-a { animation: m-out-mid 2.4s forwards; }
+.tr-morning .ly-a [data-part="ear-l"] { transform-origin: 50% 100%; animation: m-twitch .35s .1s 2 ease-in-out; }
+.tr-morning .ly-a [data-part="zz"], .tr-morning .ly-a [data-part="moon"] { animation: m-fade-out .4s forwards; }
+.tr-morning .ly-b { animation: m-in-mid 2.4s forwards; }
+.tr-morning .ly-b [data-part="cat"] { animation: m-jack 2.4s ease-out forwards; }
+.tr-morning .ly-b [data-part="box"] { transform-origin: 50% 100%; animation: m-squash 2.4s forwards; }
+.tr-morning .ly-b [data-part="paws"] { animation: m-fade-in .3s 1.6s both; }
+.tr-morning .ly-b [data-part="sparkles"] { animation: m-pop-in .5s 1.8s both; }
+/* Duck: Bubble pop wake-up */
+.tr-pop .ly-a { animation: m-out-mid 2.4s forwards; }
+.tr-pop .ly-a [data-part="bubble"] { transform-origin: 30% 30%; animation: m-bubble-pop .5s forwards; }
+.tr-pop .ly-a [data-part="duck"] { transform-origin: 50% 100%; animation: m-startle 2.4s forwards; }
+.tr-pop .ly-b { animation: m-in-mid 2.4s forwards; }
+.tr-pop .ly-b [data-part="duck"] { transform-origin: 50% 100%; animation: m-hop-once .9s 1.2s both; }
+/* Duck: Dozing off */
+.tr-doze .ly-a { animation: m-out-late 2.4s forwards; }
+.tr-doze .ly-a [data-part="duck"] { transform-origin: 50% 100%; animation: m-nod-once 2.4s ease-in-out forwards; }
+.tr-doze .ly-b { animation: m-in-late 2.4s forwards; }
+.tr-doze .ly-b [data-part="bubble"] { transform-origin: 30% 30%; animation: m-pop-in .6s 2s both; }
+/* anything else: a soft crossfade */
+.tr-swap .ly-a { animation: m-out-mid 1.2s forwards; }
+.tr-swap .ly-b { animation: m-in-mid 1.2s forwards; }
+
+/* Tap: the box cat gets booped, the curled cat perks up, the duck quacks */
+@keyframes m-boop { 0% { transform: none; } 30% { transform: translateY(-14%); } 60% { transform: translateY(3%); } 100% { transform: none; } }
+@keyframes m-perk { 0%, 100% { transform: none; } 35% { transform: translateY(-7%) rotate(-5deg); } }
+@keyframes m-quack { 0%, 100% { transform: none; } 25%, 60% { transform: scale(1.15, 1.6); } 42% { transform: scale(1.1, 1.1); } }
+@keyframes m-pop-note { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; transform: scale(1.1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20%); } }
+.mz.tap [data-part="box"] { transform-origin: 50% 100%; animation: m-wobble .7s ease-in-out; }
+.mz.tap [data-part="cat"] { animation: m-boop .7s ease-out; }
+.mz.tap [data-part="head"] { transform-origin: 50% 100%; animation: m-perk .7s ease-out; }
+.mz.tap [data-part="bill"] { transform-origin: 50% 25%; animation: m-quack .6s ease-in-out; }
+.mz.tap [data-part="duck"] { transform-origin: 50% 100%; animation: m-hop-once .6s; }
+.mz.m-duck.tap::after, .mz.m-catbox.tap::after { content: ""; position: absolute; pointer-events: none; animation: m-pop-note .8s ease-out forwards; }
+.mz.m-duck.tap::after { left: -34%; top: 30%; transform-origin: right center; scale: -1 1; width: 40%; height: 40%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%23ff9f43' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M6 12 L16 6'/%3E%3Cpath d='M8 21 H20'/%3E%3Cpath d='M6 30 L16 36'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain; }
+.mz.m-catbox.tap::after { content: "!"; left: -4%; top: -6%; font: 900 18px/1 var(--ios); color: #6d5f96; }
+@media (prefers-reduced-motion: reduce) { .mz *, .mz.tap::after { animation: none !important; } }
+
+
+/* long-press on a widget: jump to the style panel, like "Edit Widget" */
+@keyframes panel-flash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.style-panel.flash { animation: panel-flash .9s ease-out 2; border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .style-panel.flash { animation: none; } }
+
+/* ---------- fold animation ---------- */
+.fit { transition: width .55s cubic-bezier(.3,.7,.2,1), height .55s cubic-bezier(.3,.7,.2,1); }
+.phone { transition: width .55s cubic-bezier(.3,.7,.2,1), height .55s cubic-bezier(.3,.7,.2,1), transform .55s cubic-bezier(.3,.7,.2,1), border-radius .55s; }
+.screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 7; opacity: 0; }
+.phone.unfolding .screen::after { background: linear-gradient(90deg, transparent 46%, rgba(0,0,0,0.6) 52%, rgba(0,0,0,0.3)); animation: shadeOut .7s ease-out both; }
+.phone.folding .screen::after { background: linear-gradient(90deg, rgba(0,0,0,0.25), rgba(0,0,0,0.55)); animation: shadeOut .55s ease-out both; }
+.phone.unfolding .crease { animation: creaseGlow .8s ease-out; }
+.phone.anim .item, .phone.anim .app { animation: rise .45s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 45ms + 140ms); }
+@keyframes shadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes creaseGlow { 0% { opacity: 0; } 30% { opacity: 1; filter: brightness(2.2); } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .fit, .phone { transition: none; }
+  .phone.unfolding .screen::after, .phone.folding .screen::after, .phone.anim .item, .phone.anim .app, .phone.unfolding .crease { animation: none; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn.spin svg { animation: none; }
+  .toast, .phone { transition: none; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-research" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 15h9"/></symbol><symbol id="i-industry" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-4h4v4"/></symbol><symbol id="i-community" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></symbol><symbol id="i-all" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol><symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15v5M16.5 17.5h5"/></symbol><symbol id="i-fold" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M12 4v16"/></symbol><symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol><symbol id="i-rss" viewBox="0 0 24 24"><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.5"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol><symbol id="i-photo" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol><symbol id="i-map" viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></symbol><symbol id="i-weather" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.5"/><path d="M9 2v1.5M2 9h1.5M4 4l1 1M14 4l-1 1"/><path d="M8 20h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1.5A3 3 0 0 0 8 20z"/></symbol><symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol><symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></symbol><symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/></symbol><symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol><symbol id="i-news" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></symbol><symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol><symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/></symbol><symbol id="i-call" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol></svg>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><svg class="ic" aria-hidden="true"><use href="#i-fold"/></svg>Preview · foldable home screen widgets</div>
+    <h1><span class="grad">AI News</span> on your iPhone Duo and Galaxy Z Fold 8</h1>
+    <p>Each phone has two screens. Folded, the widget is a compact list on the cover screen. Open, it spreads out into two columns on the big inner screen. Switch between them, change the iPhone widget size, or tap a headline. The style panel sets the color, mascot and mood for both phones.</p>
+    <div class="cat-row"><span class="pill t-research"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-research"/></svg></span>Research</span><span class="pill t-industry"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-industry"/></svg></span>Industry</span><span class="pill t-community"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-community"/></svg></span>Community</span></div>
+    <div class="sample-note"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>Sample headlines.</b> These aren't real news. The real widget shows live items from your news feed.</span></div>
+  </header>
+
+  <section class="style-panel" aria-labelledby="style-title">
+    <h2 id="style-title">Widget style <span>applies to both phones</span></h2>
+    <div class="style-rows">
+      <div class="swatches" role="group" aria-label="Widget color" id="ios-colors">
+        <span class="sw-label">Widget color</span>
+        <button type="button" class="sw" id="col-auto" data-color="auto" aria-label="Category color" title="Category color" aria-pressed="false" style="--sw:conic-gradient(var(--src-research) 0 33%, var(--src-industry) 0 66%, var(--src-community) 0)"></button><button type="button" class="sw" id="col-ec4899" data-color="#EC4899" aria-label="Pink" title="Pink" aria-pressed="false" style="--sw:#EC4899"></button><button type="button" class="sw" id="col-8b5cf6" data-color="#8B5CF6" aria-label="Violet" title="Violet" aria-pressed="false" style="--sw:#8B5CF6"></button><button type="button" class="sw" id="col-3b82f6" data-color="#3B82F6" aria-label="Blue" title="Blue" aria-pressed="false" style="--sw:#3B82F6"></button><button type="button" class="sw" id="col-f59e0b" data-color="#F59E0B" aria-label="Amber" title="Amber" aria-pressed="false" style="--sw:#F59E0B"></button><button type="button" class="sw" id="col-10b981" data-color="#10B981" aria-label="Green" title="Green" aria-pressed="false" style="--sw:#10B981"></button><button type="button" class="sw" id="col-ef4444" data-color="#EF4444" aria-label="Red" title="Red" aria-pressed="false" style="--sw:#EF4444"></button>
+        <label class="sw sw-custom" id="col-custom-wrap" title="Pick any color" aria-pressed="false"><input type="color" id="ios-color" value="#EC4899" aria-label="Pick any widget color"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></label>
+      </div>
+      <div class="seg" role="group" aria-label="Widget mascot" id="ios-mascots">
+        <button type="button" id="m-duck" data-m="duck" aria-pressed="true"><span class="m-ico" data-kind="duck"></span>Duck</button>
+        <button type="button" id="m-catbox" data-m="catbox" aria-pressed="false"><span class="m-ico" data-kind="catbox"></span>Box cat</button>
+        <button type="button" id="m-icon" data-m="icon" aria-pressed="false">Icon</button>
+        <button type="button" id="m-none" data-m="none" aria-pressed="false">None</button>
+      </div>
+      <div class="seg" role="group" aria-label="Mascot style" id="ios-mstyle">
+        <button type="button" id="ms-peek" data-ms="peek" aria-pressed="true">Peeking</button>
+        <button type="button" id="ms-wm" data-ms="wm" aria-pressed="false">Faded, behind text</button>
+      </div>
+      <div class="seg" role="group" aria-label="Try the top story at different ages" id="ios-age">
+        <span class="seg-label">Top story age</span>
+        <button type="button" id="age-12" data-age="12" aria-pressed="true">12 min</button>
+        <button type="button" id="age-45" data-age="45" aria-pressed="false">45 min</button>
+        <button type="button" id="age-180" data-age="180" aria-pressed="false">3 hr</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="stage">
+    <!-- iPhone Duo -->
+    <section class="device-col" aria-label="iPhone Duo preview">
+      <div class="device-label t-industry"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg></span>iPhone Duo</div>
+      <div class="device-sub">WidgetKit widget · 5.4″ outer screen · 7.6″ inner screen</div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="iPhone fold state">
+          <button type="button" id="ios-folded" data-fold="folded" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Folded</button>
+          <button type="button" id="ios-open" data-fold="open" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-fold"/></svg>Open</button>
+        </div>
+        <div class="seg" role="group" aria-label="iPhone widget size" id="ios-sizes">
+          <button type="button" id="size-small" data-size="small" aria-pressed="false">Small</button>
+          <button type="button" id="size-medium" data-size="medium" aria-pressed="false">Medium</button>
+          <button type="button" id="size-large" data-size="large" aria-pressed="false">Large</button>
+          <button type="button" id="size-xl" data-size="xl" aria-pressed="true">Extra large</button>
+        </div>
+      </div>
+      <div class="fit" id="ios-fit">
+        <div class="phone ios" id="ios-phone">
+          <div class="screen">
+            <div class="island"></div>
+            <div class="crease"></div>
+            <div class="status"><span>9:41</span><span class="sys-icons"><i style="width:16px;height:9px"></i><i style="width:22px;height:10px;border-radius:3px"></i></span></div>
+            <div class="ios-grid" id="ios-grid"></div>
+            <div class="dock">
+              <span style="background-color:#34C759"><svg class="ic" aria-hidden="true"><use href="#i-call"/></svg></span><span style="background-color:#0A84FF"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg></span><span style="background-color:#FF9F0A"><svg class="ic" aria-hidden="true"><use href="#i-music"/></svg></span><span style="background-color:#8E8E93"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></span>
+            </div>
+            <div class="toast" id="ios-toast"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Galaxy Z Fold 8 -->
+    <section class="device-col" aria-label="Galaxy Z Fold 8 preview">
+      <div class="device-label t-community"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-fold"/></svg></span>Galaxy Z Fold 8</div>
+      <div class="device-sub">Jetpack Glance widget · 5.5″ cover screen · 7.6″ inner screen</div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Galaxy fold state">
+          <button type="button" id="a-folded" data-fold="folded" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Folded</button>
+          <button type="button" id="a-open" data-fold="open" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-fold"/></svg>Open</button>
+        </div>
+        <div class="seg" role="group" aria-label="Galaxy widget size" id="a-sizes">
+          <button type="button" id="asize-s22" data-asize="s22" aria-pressed="false">2 × 2</button>
+          <button type="button" id="asize-s42" data-asize="s42" aria-pressed="false">4 × 2</button>
+          <button type="button" id="asize-s44" data-asize="s44" aria-pressed="false">4 × 4</button>
+          <button type="button" id="asize-s84" data-asize="s84" aria-pressed="true">8 × 4</button>
+        </div>
+      </div>
+      <div class="fit" id="a-fit">
+        <div class="phone android" id="a-phone">
+          <div class="screen">
+            <div class="punch"></div>
+            <div class="crease"></div>
+            <div class="status"><span>9:41</span><span class="sys-icons"><i style="width:14px;height:9px"></i><i style="width:20px;height:10px;border-radius:3px"></i></span></div>
+            <div class="a-clock"><b>9:41</b><small>Mon, 28 September</small></div>
+            <div class="aw">
+              <div class="aw-head">
+                <h3><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg></span><span>AI News</span></h3>
+                <span class="aw-mini" id="a-mini"></span>
+                <button type="button" class="icon-btn" id="a-refresh" aria-label="Refresh news">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+                </button>
+              </div>
+              <div class="chips" role="group" aria-label="Filter by type" id="chips">
+                <button type="button" class="chip" id="f-all" data-f="all" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-all"/></svg>All</button>
+                <button type="button" class="chip t-research" id="f-research" data-f="research" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-research"/></svg>Research</button>
+                <button type="button" class="chip t-industry" id="f-industry" data-f="industry" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-industry"/></svg>Industry</button>
+                <button type="button" class="chip t-community" id="f-community" data-f="community" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-community"/></svg>Community</button>
+              </div>
+              <div class="aw-list" id="a-list"></div>
+              <div class="aw-foot"><span id="a-foot">Updated 9:41 · every 30 min</span><span class="aw-m" id="a-mascot"></span></div>
+              <div class="aw-wm" id="a-wm" aria-hidden="true"></div>
+            </div>
+            <div class="a-grid" id="a-grid"></div>
+            <div class="a-apps" id="a-apps"></div>
+            <div class="navbar"><i></i></div>
+            <div class="toast" id="a-toast"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="notes">
+    <div class="note t-accent">
+      <h2><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-fold"/></svg></span>One widget, two screens</h2>
+      <p>The widget checks how much room it has and picks a layout: a single list on the narrow cover screen, two columns when the phone is open. You add it once per screen.</p>
+    </div>
+    <div class="note t-research">
+      <h2><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-rss"/></svg></span>Where the news comes from</h2>
+      <p>Every hour, a free GitHub job collects AI news from RSS feeds and saves it as <code>news.json</code>. Both phones read that one file.</p>
+    </div>
+    <div class="note t-industry">
+      <h2><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span>How fresh it is</h2>
+      <p>The iPhone widget redraws every 15 minutes, the Galaxy widget about every 30. Either one updates right away when you tap refresh, and the mascot's mood moves on by itself as the top story gets older.</p>
+    </div>
+    <div class="note t-community">
+      <h2><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span>Color-coded categories</h2>
+      <div class="legend">
+        <span class="pill t-research"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-research"/></svg></span>Research</span>
+        <span class="pill t-industry"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-industry"/></svg></span>Industry</span>
+        <span class="pill t-community"><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-community"/></svg></span>Community</span>
+      </div>
+      <p>Each headline carries its category icon and color, plus a round initial badge for its source (HN, aX, TC…). Tapping a headline opens the full article in your browser.</p>
+    </div>
+    <div class="note t-accent">
+      <h2><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></span>Change it any time</h2>
+      <p>On a real phone, touch and hold the widget and open its settings: <b>Edit Widget</b> on iPhone, the settings button on Galaxy. Pick the duck or box cat, peeking or faded behind the text, and a colour. Try it here: press and hold (or right-click) either widget.</p>
+    </div>
+    <div class="note t-industry">
+      <h2><span class="badge"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg></span>The real apps</h2>
+      <p>This page is a preview. The working widgets are two projects in your Documents folder: <code>AINewsiOS</code> opens in Xcode, and <code>AINewsWidget</code> opens in Android Studio. Both use the same mascots and sample headlines.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var awEl = document.querySelector("#a-phone .aw");
+  var NEWS = [
+    { t: "Small open-weights model matches much larger rivals on coding benchmarks", s: "Hacker News", c: "community", m: 12 },
+    { t: "Agents that plan with a learned world model beat baselines on long tasks", s: "arXiv", c: "research", m: 38 },
+    { t: "An AI lab ships a faster, cheaper model tier for developers", s: "The Verge", c: "industry", m: 54 },
+    { t: "New phone chips run 8B-parameter models fully offline", s: "TechCrunch", c: "industry", m: 95 },
+    { t: "Cutting preference-training cost in half with synthetic feedback", s: "arXiv", c: "research", m: 130 },
+    { t: "What's the best setup for running local LLMs this year?", s: "r/LocalLLaMA", c: "community", m: 160 },
+    { t: "Regulators publish updated guidance for general-purpose AI models", s: "Ars Technica", c: "industry", m: 210 },
+    { t: "Why long context windows are getting cheaper to serve", s: "Import AI", c: "community", m: 300 }
+  ];
+  var APPS = ["#FF3B30","#FF9500","#FFCC00","#34C759","#30B0C7","#007AFF","#5856D6","#AF52DE","#FF2D55","#A2845E","#8E8E93","#64D2FF","#5AC8FA","#FF6482","#32D74B","#BF5AF2","#FF9F0A","#0A84FF","#30D158","#FFD60A"];
+  var APP_NAMES = ["Calendar","Photos","Camera","Maps","Weather","Clock","Notes","Reminders","Music","Books","Settings","Health","Wallet","Files","Podcasts","Mail","News","Stocks","Fitness","Home"];
+  var A_APPS = ["#1FA463","#1E6FE8","#F2B233","#E8453C","#7C4DFF","#00ACC1"];
+
+  // Phone sizes in px (outer frame), from real dimensions: iPhone Duo 84.1 x 117.8 mm folded, 164.6 x 117.8 mm open.
+  var DEV = {
+    ios: {
+      folded: { w: 358, h: 502, cols: 4, rows: 5, rowH: 62, gap: "8px 12px", icon: 44,
+                spans: { small: [2, 2], medium: [4, 2], large: [4, 4] } },
+      open:   { w: 702, h: 502, cols: 6, rows: 5, rowH: 72, gap: "10px 14px", icon: 46,
+                spans: { small: [2, 2], medium: [4, 2], large: [4, 4], xl: [6, 3] } }
+    },
+    android: {
+      folded: { w: 332, h: 502, cols: 4, rows: 4, rowH: 62, sizes: { s22: [2, 2], s42: [4, 2], s44: [4, 4] } },
+      open:   { w: 654, h: 502, cols: 8, rows: 4, rowH: 62, sizes: { s22: [2, 2], s42: [4, 2], s44: [4, 4], s84: [8, 4] } }
+    }
+  };
+
+  function ico(n) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; }
+  function catIcon(c) { return '<span class="badge cat t-' + c + '">' + ico(c) + '</span>'; }
+  // Initial badges for each source (colors are ours, not the sources' brand colors).
+  var SOURCES = {
+    "Hacker News": ["HN", "#E4572E"], "arXiv": ["aX", "#9B2C2C"], "The Verge": ["V", "#6D28D9"],
+    "TechCrunch": ["TC", "#15803D"], "r/LocalLLaMA": ["r/", "#EA580C"], "Ars Technica": ["AT", "#B45309"],
+    "Import AI": ["IA", "#0E7490"]
+  };
+  function srcBadge(name) {
+    var b = SOURCES[name] || [name.replace(/[^A-Za-z]/g, "").slice(0, 2), "#64748B"];
+    return '<span class="sb" style="--sb:' + b[1] + '" aria-hidden="true">' + esc(b[0]) + '</span>';
+  }
+  function srcMeta(n, ago) { return '<span class="meta t-' + n.c + '">' + srcBadge(n.s) + '<span class="src">' + esc(n.s) + '</span><span class="ago">· ' + ago + '</span></span>'; }
+  var APP_GLYPHS = ["calendar","photo","camera","map","weather","clock","note","check","music","book","gear","heart","card","folder","mic","mail","news","chart","activity","home"];
+  var LABELS = { research: "Research", industry: "Industry", community: "Community" };
+  function itemHTML(n, i, opts) {
+    var cls = "item t-" + n.c + (opts.feat ? " feat" : "") + (opts.first ? " first" : "");
+    return '<button type="button" class="' + cls + '" style="--i:' + i + (opts.tone || "") + '" data-src="' + esc(n.s) + '">' + catIcon(n.c) +
+      (opts.feat ? '<span class="kicker">' + opts.kicker + '</span>' : '') +
+      '<span class="title">' + esc(n.t) + '</span>' + srcMeta(n, opts.ago) + '</button>';
+  }
+  function animate(phone, kind) {
+    phone.classList.remove("unfolding", "folding", "anim");
+    void phone.offsetWidth;
+    if (kind) phone.classList.add(kind);
+    phone.classList.add("anim");
+    clearTimeout(phone._a);
+    phone._a = setTimeout(function () { phone.classList.remove("unfolding", "folding", "anim"); }, 1100);
+  }
+  var A_GLYPHS = ["call","community","photo","camera","mail","gear"];
+  function shortAgo(m) { return m < 60 ? m + "m" : Math.round(m / 60) + "h"; }
+  function longAgo(m) { return m < 60 ? m + " min ago" : Math.round(m / 60) + " hr ago"; }
+  function esc(s) { return s.replace(/[&<>"]/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]; }); }
+  function load(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  function toast(id, text) {
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove("show"); }, 1600);
+  }
+
+  // Scale a fixed-size phone down to fit narrow screens.
+  function fit(fitId, phoneId, w, h) {
+    var box = document.getElementById(fitId), phone = document.getElementById(phoneId);
+    var avail = document.querySelector(".stage").clientWidth || w;
+    var s = Math.min(1, avail / w);
+    phone.style.width = w + "px";
+    phone.style.height = h + "px";
+    phone.style.transform = "scale(" + s + ")";
+    box.style.width = (w * s) + "px";
+    box.style.height = (h * s) + "px";
+  }
+
+  // ---------- iPhone Duo ----------
+  var iosFold = load("ainews-ios-fold", "open");
+  var size = load("ainews-ios-size", "xl");
+  var wColor = load("ainews-ios-color", "auto");
+  function toneStyle() { return wColor === "auto" ? "" : ";--tone:" + wColor; }
+
+  // Drop headlines that don't fit the widget, and count them in the header.
+  function trimIOS() {
+    var more = document.getElementById("ios-more");
+    var list = document.getElementById("ios-list");
+    var shown = list ? list.querySelectorAll(".item").length : 1;
+    if (list) {
+      var items = list.querySelectorAll(".item"), limit = list.clientHeight;
+      for (var i = items.length - 1; i > 0; i--) {
+        if (items[i].offsetTop + items[i].offsetHeight > limit + 1) { items[i].remove(); shown--; }
+      }
+      if (list.closest(".xl") && shown > 1 && (shown - 1) % 2) { list.lastElementChild.remove(); shown--; }
+    }
+    var rest = NEWS.length - shown;
+    if (more) more.textContent = rest > 0 ? "+" + rest + " more" : "Updated 9:41";
+  }
+  var trimT;
+  function smallWidgetHTML(n, style) {
+    var hasM = MASCOTS[mascot];
+    return '<div class="iw small t-' + n.c + (hasM ? (mStyle === "wm" ? " wm" : " has-mascot") : "") + '" style="' + style + toneStyle() + '">' +
+      (hasM ? mascotSVG(mascot, n.c) : mascot === "icon" ? '<svg class="ic sw-mark" aria-hidden="true"><use href="#i-' + n.c + '"/></svg>' : '') +
+      '<div class="sw-head"><span class="iw-brand">' + ico("spark") + '<b>AI News</b></span>' + catIcon(n.c) + '</div>' +
+      '<button type="button" class="item sw-story" style="--i:0" data-src="' + esc(n.s) + '">' +
+        '<span class="kicker">Top story</span>' +
+        '<span class="title">' + esc(n.t) + '</span>' +
+        '<span class="sw-meta"><span class="sw-src">' + srcBadge(n.s) + '<span class="src">' + esc(n.s) + '</span></span><span>' + shortAgo(n.m) + '</span></span>' +
+      '</button></div>';
+  }
+  function renderIOS(opts) {
+    var cfg = DEV.ios[iosFold];
+    if (!cfg.spans[size]) size = "large";
+    var phone = document.getElementById("ios-phone");
+    var wasOpen = phone.classList.contains("open"), isOpen = iosFold === "open";
+    if (opts && opts.anim) animate(phone, wasOpen === isOpen ? null : (isOpen ? "unfolding" : "folding"));
+    phone.classList.toggle("open", isOpen);
+    fit("ios-fit", "ios-phone", cfg.w, cfg.h);
+
+    var grid = document.getElementById("ios-grid");
+    grid.style.gridTemplateColumns = "repeat(" + cfg.cols + ", 1fr)";
+    grid.style.gridAutoRows = cfg.rowH + "px";
+    grid.style.gap = cfg.gap;
+    grid.style.setProperty("--icon", cfg.icon + "px");
+
+    var span = cfg.spans[size];
+    var html = '<div class="iw ' + size + '" style="grid-column: span ' + span[0] + '; grid-row: span ' + span[1] + '">';
+    html += '<div class="iw-head"><span class="iw-brand">' + ico("spark") + '<b>AI News</b></span>' + (MASCOTS[mascot] ? '<span class="mini t-' + NEWS[0].c + '" style="' + toneStyle().slice(1) + '">' + mascotSVG(mascot, NEWS[0].c, "18 26 74 62") + '</span>' : '') + '<span class="iw-time" id="ios-more">Updated 9:41</span></div><div class="iw-bar"></div>';
+    if (size === "small") {
+      html = smallWidgetHTML(NEWS[0], "grid-column: span " + span[0] + "; grid-row: span " + span[1]);
+    } else {
+      var xl = size === "xl";
+      html += '<div class="iw-list" id="ios-list">';
+      NEWS.forEach(function (n, i) {
+        html += itemHTML(n, i, { feat: i === 0, kicker: "Top story", first: i === 1 || (xl && i === 2), ago: shortAgo(n.m), tone: i === 0 ? toneStyle() : "" });
+      });
+      html += '</div></div>';
+    }
+    var apps = cfg.cols * cfg.rows - span[0] * span[1];
+    for (var i = 0; i < apps; i++) {
+      html += '<div class="app" style="--i:' + (i + 2) + '"><span style="background-color:' + APPS[i % APPS.length] + '">' + ico(APP_GLYPHS[i % APP_GLYPHS.length]) + '</span><small>' + APP_NAMES[i % APP_NAMES.length] + '</small></div>';
+    }
+    grid.innerHTML = html;
+    clearTimeout(trimT);
+    if (phone.classList.contains("unfolding") || phone.classList.contains("folding")) trimT = setTimeout(trimIOS, 580);
+    else trimIOS();
+
+    document.getElementById("size-xl").hidden = iosFold !== "open";
+    document.querySelectorAll("#ios-sizes [data-size]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.size === size));
+    });
+    document.querySelectorAll("[data-fold]").forEach(function (b) {
+      if (b.id.indexOf("ios-") === 0) b.setAttribute("aria-pressed", String(b.dataset.fold === iosFold));
+    });
+  }
+  document.querySelectorAll("#ios-sizes [data-size]").forEach(function (b) {
+    b.addEventListener("click", function () { size = b.dataset.size; save("ainews-ios-size", size); renderIOS({ anim: true }); });
+  });
+  ["ios-folded", "ios-open"].forEach(function (id) {
+    document.getElementById(id).addEventListener("click", function (e) {
+      if (iosFold === e.currentTarget.dataset.fold) return;
+      iosFold = e.currentTarget.dataset.fold; save("ainews-ios-fold", iosFold); renderIOS({ anim: true });
+    });
+  });
+  var PRESETS = [];
+  document.querySelectorAll("#ios-colors .sw[data-color]").forEach(function (b) { PRESETS.push(b.dataset.color); });
+  var customWrap = document.getElementById("col-custom-wrap"), customInput = document.getElementById("ios-color");
+  function syncColors() {
+    var isPreset = PRESETS.indexOf(wColor) !== -1;
+    document.querySelectorAll("#ios-colors .sw[data-color]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.color === wColor));
+    });
+    customWrap.setAttribute("aria-pressed", String(!isPreset));
+    customWrap.style.setProperty("--sw", isPreset ? "" : wColor);
+    if (!isPreset) customInput.value = wColor;
+  }
+  function setColor(c) { wColor = c; save("ainews-ios-color", c); syncColors(); renderIOS(); renderAndroid(); }
+  document.getElementById("ios-colors").addEventListener("click", function (e) {
+    var b = e.target.closest(".sw[data-color]");
+    if (b) setColor(b.dataset.color);
+  });
+  customInput.addEventListener("input", function () { setColor(customInput.value); });
+  syncColors();
+
+  // ---------- mascots: loaded from assets/mascots/ (the single source of truth) ----------
+  function moodOf(m) { return m < 30 ? "happy" : m >= 120 ? "sleepy" : "calm"; }
+  var MASCOTS = {
+    duck: { happy: "duck-happy", calm: "duck-calm", sleepy: "duck-sleepy" },
+    catbox:  { happy: "cat-box-peeker-happy", calm: "cat-box-peeker", sleepy: "cat-cozy-curl" },
+    catcurl: { happy: "cat-cozy-curl-happy", calm: "cat-cozy-curl-calm", sleepy: "cat-cozy-curl" }
+  };
+  var MASCOT_NAMES = { duck: "Duck", catbox: "Box cat", catcurl: "Curled cat" };
+  // The SVG files are fetched once and drawn inline, so their labelled parts (data-part="...") can move.
+  // If a file can't be fetched, the plain <img> is used instead (no animation).
+  var SVG_CACHE = {};
+  function inlineSVG(file) {
+    var t = SVG_CACHE[file];
+    return t ? t : "";
+  }
+  function layer(file, cls) {
+    return '<span class="ly f-' + file + (cls ? " " + cls : "") + '">' + inlineSVG(file) + '</span>';
+  }
+  var pendingTr = null;   // { from, to } while a mood change is being rendered
+  function transitionFor(kind, from, to) {
+    if (!from || from === to) return null;
+    if (kind === "catbox") {
+      if (to === "sleepy") return { name: "bedtime", a: "cat-box-peeker-sleepy" };
+      if (from === "sleepy") return { name: "morning", a: "cat-cozy-curl" };
+    }
+    if (kind === "duck") {
+      if (from === "sleepy") return { name: "pop", a: "duck-sleepy" };
+      if (to === "sleepy") return { name: "doze", a: MASCOTS.duck[from] };
+    }
+    return { name: "swap", a: MASCOTS[kind][from] };
+  }
+  function mascotSVG(kind, cat, viewBox, mood, plain) {
+    mood = mood || moodOf(NEWS[0].m);
+    var file = MASCOTS[kind][mood];
+    var base = "mascot m-" + kind + " f-" + file;
+    if (plain || !SVG_CACHE[file]) {
+      return '<img class="' + base + '" src="assets/mascots/' + file + '.svg" alt="" draggable="false">';
+    }
+    var tr = pendingTr && !REDUCED && transitionFor(kind, pendingTr.from, pendingTr.to);
+    if (tr && SVG_CACHE[tr.a]) {
+      return '<span class="' + base + ' mz tr tr-' + tr.name + '" data-kind="' + kind + '" data-mood="' + mood + '">' +
+        layer(tr.a, "ly-a") + layer(file, "ly-b") + '</span>';
+    }
+    return '<span class="' + base + ' mz" data-kind="' + kind + '" data-mood="' + mood + '">' + layer(file) + '</span>';
+  }
+  var REDUCED = false;
+  try { REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  // After a mood-change story finishes, swap in the plain looping version.
+  function settleTransitions() {
+    clearTimeout(settleTransitions._t);
+    settleTransitions._t = setTimeout(function () {
+      document.querySelectorAll(".mz.tr").forEach(function (el) {
+        el.outerHTML = mascotSVG(el.dataset.kind, null, null, el.dataset.mood).replace('class="', 'class="' + (el.classList.contains("in-mini") ? "in-mini " : ""));
+      });
+    }, 2700);
+  }
+  // Tap a mascot: the box cat gets booped, the duck quacks.
+  document.addEventListener("click", function (e) {
+    var m = e.target.closest(".mz");
+    if (!m || m.classList.contains("tr")) return;
+    e.stopPropagation();
+    m.classList.remove("tap"); void m.offsetWidth; m.classList.add("tap");
+    clearTimeout(m._t); m._t = setTimeout(function () { m.classList.remove("tap"); }, 900);
+  }, true);
+  var MASCOT_FILES = ["duck-happy", "duck-calm", "duck-sleepy", "cat-box-peeker-happy", "cat-box-peeker", "cat-box-peeker-sleepy", "cat-cozy-curl"];
+  Promise.all(MASCOT_FILES.map(function (f) {
+    return fetch("assets/mascots/" + f + ".svg").then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) {
+      if (!t) return;
+      t = t.replace(/<title>[\s\S]*?<\/title>/, "").replace(/<metadata>[\s\S]*?<\/metadata>/, "")
+           .replace(/<svg[^>]*>/, function (tag) { return tag.replace(/\s(width|height|role|aria-label)="[^"]*"/g, "").replace("<svg", '<svg aria-hidden="true" focusable="false"'); });
+      SVG_CACHE[f] = t;
+    }).catch(function () {});
+  })).then(function () { renderIOS(); renderAndroid(); });
+  var mascot = load("ainews-mascot", "duck");
+  if (mascot === "penguin") mascot = "duck";
+  if (mascot === "cat" || mascot === "catcurl") mascot = "catbox";
+  var mStyle = load("ainews-mstyle", "peek");
+  document.querySelectorAll("#ios-mascots .m-ico").forEach(function (el) { el.innerHTML = mascotSVG(el.dataset.kind, null, null, el.dataset.kind === "catcurl" ? "sleepy" : "calm", true); });
+  function syncMascots() {
+    document.querySelectorAll("#ios-mascots [data-m]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.m === mascot)); });
+    document.querySelectorAll("#ios-mstyle [data-ms]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.ms === mStyle)); });
+    document.getElementById("ios-mstyle").hidden = !MASCOTS[mascot];
+  }
+  document.getElementById("ios-mascots").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-m]");
+    if (!b) return;
+    mascot = b.dataset.m; save("ainews-mascot", mascot); syncMascots(); renderIOS({ anim: true }); renderAndroid({ anim: true });
+  });
+  document.getElementById("ios-mstyle").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-ms]");
+    if (!b) return;
+    mStyle = b.dataset.ms; save("ainews-mstyle", mStyle); syncMascots(); renderIOS({ anim: true }); renderAndroid({ anim: true });
+  });
+  function syncAge() {
+    document.querySelectorAll("#ios-age [data-age]").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.dataset.age === NEWS[0].m)); });
+  }
+  document.getElementById("ios-age").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-age]");
+    if (!b) return;
+    var from = moodOf(NEWS[0].m);
+    NEWS[0].m = +b.dataset.age; syncAge();
+    pendingTr = { from: from, to: moodOf(NEWS[0].m) };
+    renderIOS(); renderAndroid();
+    pendingTr = null;
+    settleTransitions();
+  });
+  syncAge();
+  syncMascots();
+  document.getElementById("ios-grid").addEventListener("click", function (e) {
+    var item = e.target.closest(".item");
+    if (item) toast("ios-toast", "Opens the article from " + item.dataset.src);
+  });
+
+  // ---------- Galaxy Z Fold ----------
+  var aFold = load("ainews-a-fold", "open");
+  var filter = "all";
+
+  var aSize = load("ainews-a-size", "s84");
+  var A_HOME = [["Calendar","calendar","#E8453C"],["Clock","clock","#5B6CF0"],["Gallery","photo","#F2B233"],["Notes","note","#F59E0B"],
+    ["Weather","weather","#00ACC1"],["Music","music","#E9407A"],["My Files","folder","#F2A024"],["Health","heart","#1FA463"],
+    ["Maps","map","#1E6FE8"],["Email","mail","#7C4DFF"],["Calculator","chart","#3F9C5A"],["Home","home","#0EA5E9"],
+    ["Settings","gear","#6B7280"],["Camera","camera","#E8453C"],["Messages","community","#1E6FE8"],["Phone","call","#1FA463"]];
+  function renderAndroid(opts) {
+    var cfg = DEV.android[aFold];
+    if (!cfg.sizes[aSize]) aSize = "s44";
+    var span = cfg.sizes[aSize];
+    var aPhone = document.getElementById("a-phone");
+    var wasOpen = aPhone.classList.contains("open"), isOpen = aFold === "open";
+    if (opts && opts.anim) animate(aPhone, wasOpen === isOpen ? null : (isOpen ? "unfolding" : "folding"));
+    aPhone.classList.toggle("open", isOpen);
+    fit("a-fit", "a-phone", cfg.w, cfg.h);
+
+    var cols = aSize === "s84" ? 2 : 1;
+    var items = NEWS.filter(function (n) { return filter === "all" || n.c === filter; });
+    var kicker = filter === "all" ? "Top story" : "Top in " + LABELS[filter];
+    awEl.querySelector("#a-list").innerHTML = items.map(function (n, i) {
+      return itemHTML(n, i, { feat: i === 0, kicker: kicker, first: i >= 1 && i <= cols, ago: longAgo(n.m), tone: i === 0 ? toneStyle() : "" });
+    }).join("");
+    // same style settings as the iPhone: color wash, mascot, mood
+    var lead = items[0] || NEWS[0], hasM = !!MASCOTS[mascot], wm = hasM && mStyle === "wm";
+    var aw = awEl;
+    aw.className = "aw t-" + lead.c + (hasM ? (wm ? " wm" : " has-mascot") : "");
+    aw.style.cssText = toneStyle().slice(1);
+    awEl.querySelector("#a-mascot").innerHTML = hasM && !wm ? mascotSVG(mascot, lead.c) : "";
+    awEl.querySelector("#a-wm").innerHTML = wm ? mascotSVG(mascot, lead.c) :
+      mascot === "icon" ? '<svg class="ic sw-mark" aria-hidden="true"><use href="#i-' + lead.c + '"/></svg>' : "";
+    aw.classList.add("as-" + aSize);
+    // 4 x 2 has no footer, so the peeking mascot sits in the header instead
+    awEl.querySelector("#a-mini").innerHTML = hasM && !wm && aSize === "s42" ? mascotSVG(mascot, lead.c) : "";
+
+    // home screen grid: the widget first, app icons fill the remaining cells
+    var grid = document.getElementById("a-grid");
+    grid.style.gridTemplateColumns = "repeat(" + cfg.cols + ", 1fr)";
+    grid.style.gridAutoRows = cfg.rowH + "px";
+    grid.textContent = "";
+    var spanStyle = "grid-column: span " + span[0] + "; grid-row: span " + span[1];
+    if (aSize === "s22") {
+      grid.insertAdjacentHTML("beforeend", smallWidgetHTML(NEWS[0], spanStyle + ";"));
+    } else {
+      aw.style.cssText = spanStyle + ";" + toneStyle().slice(1);
+      grid.appendChild(aw);
+    }
+    var appsHTML = "";
+    for (var ai = 0; ai < cfg.cols * cfg.rows - span[0] * span[1]; ai++) {
+      var ap = A_HOME[ai % A_HOME.length];
+      appsHTML += '<div class="app" style="--i:' + (ai + 2) + '"><span style="background-color:' + ap[2] + '">' + ico(ap[1]) + '</span><small>' + ap[0] + '</small></div>';
+    }
+    grid.insertAdjacentHTML("beforeend", appsHTML);
+    document.getElementById("asize-s84").hidden = aFold !== "open";
+    document.querySelectorAll("#a-sizes [data-asize]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.asize === aSize)); });
+
+    var appCount = aFold === "open" ? 6 : 4;
+    document.getElementById("a-apps").innerHTML = A_APPS.slice(0, appCount).map(function (c) {
+      return '<span style="background-color:' + c + '">' + ico(A_GLYPHS[A_APPS.indexOf(c)]) + '</span>';
+    }).join("");
+
+    document.querySelectorAll("#chips .chip").forEach(function (c) {
+      c.setAttribute("aria-pressed", String(c.dataset.f === filter));
+    });
+    ["a-folded", "a-open"].forEach(function (id) {
+      var b = document.getElementById(id);
+      b.setAttribute("aria-pressed", String(b.dataset.fold === aFold));
+    });
+  }
+  document.getElementById("a-sizes").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-asize]");
+    if (!b) return;
+    aSize = b.dataset.asize; save("ainews-a-size", aSize); renderAndroid({ anim: true });
+  });
+  document.getElementById("a-grid").addEventListener("click", function (e) {
+    var item = e.target.closest(".iw .item");
+    if (item) toast("a-toast", "Opens the article from " + item.dataset.src);
+  });
+  ["a-folded", "a-open"].forEach(function (id) {
+    document.getElementById(id).addEventListener("click", function (e) {
+      if (aFold === e.currentTarget.dataset.fold) return;
+      aFold = e.currentTarget.dataset.fold; save("ainews-a-fold", aFold); renderAndroid({ anim: true });
+    });
+  });
+  document.getElementById("chips").addEventListener("click", function (e) {
+    var c = e.target.closest(".chip");
+    if (!c) return;
+    filter = c.dataset.f;
+    renderAndroid({ anim: true });
+  });
+  awEl.querySelector("#a-list").addEventListener("click", function (e) {
+    var item = e.target.closest(".item");
+    if (item) toast("a-toast", "Opens the article from " + item.dataset.src);
+  });
+  var refresh = document.getElementById("a-refresh");
+  refresh.addEventListener("click", function () {
+    refresh.classList.remove("spin");
+    void refresh.offsetWidth;
+    refresh.classList.add("spin");
+    awEl.querySelector("#a-foot").textContent = "Updated just now · every 30 min";
+    toast("a-toast", "Checking for new stories…");
+  });
+
+  // Press and hold (or right-click) a widget to "edit" it: scroll to the style panel.
+  function editWidget(toastId) {
+    var panel = document.querySelector(".style-panel");
+    toast(toastId, "Edit widget: pick mascot, style and colour");
+    setTimeout(function () {
+      panel.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "start" });
+      panel.classList.remove("flash"); void panel.offsetWidth; panel.classList.add("flash");
+    }, 450);
+  }
+  [["ios-grid", "ios-toast"], ["a-grid", "a-toast"]].forEach(function (pair) {
+    var grid = document.getElementById(pair[0]), timer = null, held = false;
+    function isWidget(t) { return t.closest(".iw, .aw"); }
+    grid.addEventListener("contextmenu", function (e) {
+      if (!isWidget(e.target)) return;
+      e.preventDefault(); editWidget(pair[1]);
+    });
+    grid.addEventListener("pointerdown", function (e) {
+      if (!isWidget(e.target) || e.pointerType === "mouse") return;
+      held = false;
+      timer = setTimeout(function () { held = true; editWidget(pair[1]); }, 550);
+    });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(function (ev) {
+      grid.addEventListener(ev, function () { clearTimeout(timer); });
+    });
+    grid.addEventListener("click", function (e) { if (held) { e.stopPropagation(); e.preventDefault(); held = false; } }, true);
+  });
+
+  renderIOS();
+  renderAndroid();
+  var rt;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { renderIOS(); renderAndroid(); }, 100);
+  });
+})();
+</script>
+
+</body></html>

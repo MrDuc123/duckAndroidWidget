@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The industry icon, big and faded behind the text: the "Icon" mascot choice.
+     The 13% opacity is built in (a tint colour's alpha is ignored before Android 12). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:alpha="0.13">
+    <path android:pathData="M6,3h12a2,2 0,0 1,2 2v14a2,2 0,0 1,-2 2H6a2,2 0,0 1,-2 -2V5a2,2 0,0 1,2 -2zM9,7h1M14,7h1M9,11h1M14,11h1M10,21v-4h4v4"
+        android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+</vector>
